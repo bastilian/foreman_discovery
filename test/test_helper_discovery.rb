@@ -110,6 +110,15 @@ def location_one
   Location.find_by_name('Location 1')
 end
 
+def current_path_info
+  current_url.sub(%r{.*?://},'')[%r{[/\?\#].*}] || '/'
+end
+
+def current_params
+  query = current_path_info.split('?')[1]
+  Rack::Utils.parse_nested_query query
+end
+
 def facts_simple_network100_42
   {
     "interfaces"       => "lo,eth0,eth1",
