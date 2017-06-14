@@ -3,6 +3,7 @@ require 'integration_test_helper'
 
 class DiscoveredHostsTest < IntegrationTestWithJavascript
   let(:discovered_host) { FactoryGirl.create(:discovered_host, :with_facts) }
+  let(:discovered_hosts) { Host::Discovered.all }
 
   setup do
     discovered_host.save
@@ -14,14 +15,34 @@ class DiscoveredHostsTest < IntegrationTestWithJavascript
   end
 
   describe 'Reboot all' do
-    let(:discovered_hosts) { Host::Discovered.all }
-
     test 'triggers reboot on all discovered_hosts' do
       Host::Discovered.any_instance
                       .expects(:reboot)
                       .at_least(discovered_hosts.count)
       select_all_hosts
       page.find_link('Reboot All').click
+    end
+  end
+
+  describe 'Autoprovision all' do
+    test 'converts all discovered to managed hosts' do
+      select_all_hosts
+      page.find_link('Auto Provision All').click
+      wait_for_ajax
+      assert page.has_text?('Discovered hosts are provisioning now')
+    end
+  end
+
+  describe 'Delete hosts' do
+    test 'it removes all hosts' do
+      select_all_hosts
+      page.find_link('Select Action').click
+      page.find_link('Delete hosts').click
+      wait_for_ajax
+      assert page.has_text?('The following hosts are about to be changed')
+      page.find_button('Submit').click
+      wait_for_ajax
+      assert page.has_text?('Destroyed selected hosts')
     end
   end
 
