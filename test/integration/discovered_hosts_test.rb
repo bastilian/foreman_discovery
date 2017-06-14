@@ -13,6 +13,18 @@ class DiscoveredHostsTest < IntegrationTestWithJavascript
     Host::Discovered.destroy_all
   end
 
+  describe 'Reboot all' do
+    let(:discovered_hosts) { Host::Discovered.all }
+
+    test 'triggers reboot on all discovered_hosts' do
+      Host::Discovered.any_instance
+                      .expects(:reboot)
+                      .at_least(discovered_hosts.count)
+      select_all_hosts
+      page.find_link('Reboot All').click
+    end
+  end
+
   describe 'can provision discovered_host' do
     setup do
       page.find_link('Provision').click
@@ -59,6 +71,10 @@ class DiscoveredHostsTest < IntegrationTestWithJavascript
   end
 
   private
+
+  def select_all_hosts
+    page.find('#check_all').click
+  end
 
   def select_from(element_id, term = nil)
     if term
