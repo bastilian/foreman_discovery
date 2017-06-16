@@ -111,7 +111,7 @@ def location_one
 end
 
 def current_path_info
-  current_url.sub(%r{.*?://},'')[%r{[/\?\#].*}] || '/'
+  current_url.sub(%r{.*?://}, '')[%r{[/\?\#].*}] || '/'
 end
 
 def current_params
@@ -135,4 +135,13 @@ def discover_host_from_facts(facts)
   User.as_anonymous_admin do
     Host::Discovered.import_host(facts)
   end
+end
+
+def assert_param(expected, param)
+  keys = param.split('.')
+  result = current_params
+  keys.each do |key|
+    result = result[key]
+  end
+  assert_equal expected, result
 end

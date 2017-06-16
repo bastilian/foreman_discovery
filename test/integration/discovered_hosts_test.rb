@@ -6,7 +6,7 @@ class DiscoveredHostsTest < IntegrationTestWithJavascript
   let(:discovered_hosts) { Host::Discovered.all }
 
   setup do
-    discovered_host.save
+    discovered_host.save!
     visit discovered_hosts_path
   end
 
@@ -46,9 +46,11 @@ class DiscoveredHostsTest < IntegrationTestWithJavascript
     end
   end
 
-  describe 'can provision discovered_host' do
+  describe 'using Create Host link' do
     setup do
-      page.find_link('Provision').click
+      page.find("#host_ids_#{discovered_host.id}")
+          .query_scope
+          .find_link('Provision').click
     end
 
     test 'and forwards to editing it' do
@@ -61,10 +63,10 @@ class DiscoveredHostsTest < IntegrationTestWithJavascript
       let(:discovery_hostgroup) { Hostgroup.first }
 
       test 'it passes it on' do
-        select_from('host_hostgroup_id', discovery_hostgroup.name)
+        select_from('host_hostgroup_id', discovery_hostgroup.id)
         create_host
-        assert_equal discovery_hostgroup.id.to_s,
-                     current_params['host']['hostgroup_id']
+        assert_param discovery_hostgroup.id.to_s,
+                     'host.hostgroup_id'
       end
     end
 
@@ -72,10 +74,10 @@ class DiscoveredHostsTest < IntegrationTestWithJavascript
       let(:discovery_location) { Location.first }
 
       test 'it passes it on' do
-        select_from('host_location_id', discovery_location.name)
+        select_from('host_location_id', discovery_location.id)
         create_host
-        assert_equal discovery_location.id.to_s,
-                     current_params['host']['location_id']
+        assert_param discovery_location.id.to_s,
+                     'host.location_id'
       end
     end
 
@@ -83,10 +85,10 @@ class DiscoveredHostsTest < IntegrationTestWithJavascript
       let(:discovery_organization) { Organization.first }
 
       test 'it passes it on' do
-        select_from('host_organization_id', discovery_organization.name)
+        select_from('host_organization_id', discovery_organization.id)
         create_host
-        assert_equal discovery_organization.id.to_s,
-                     current_params['host']['organization_id']
+        assert_param discovery_organization.id.to_s,
+                     'host.organization_id'
       end
     end
   end
@@ -97,12 +99,10 @@ class DiscoveredHostsTest < IntegrationTestWithJavascript
     page.find('#check_all').click
   end
 
-  def select_from(element_id, term = nil)
-    if term
-      page.find_by_id("s2id_#{element_id}").click
-      page.find('.select2-input').send_keys(term)
-    end
-    page.find('.select2-results li:first-child').click
+  def select_from(element_id, id)
+    page.find_by_id(element_id, visible: false)
+        .find("option[value='#{id}']", visible: false)
+        .select_option
   end
 
   def create_host
