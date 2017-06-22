@@ -93,6 +93,41 @@ class DiscoveredHostsTest < IntegrationTestWithJavascript
     end
   end
 
+  describe 'edit form' do
+    test 'it is a host form' do
+      visit edit_discovered_host_path(discovered_host)
+      assert page.find("form#edit_host_#{discovered_host.id}")
+    end
+
+    context 'with a hostgroup passed' do
+      let(:hostgroup_environment) { FactoryGirl.create(:environment) }
+      let(:hostgroup_domain) { FactoryGirl.create(:domain) }
+      let(:hostgroup) do
+        FactoryGirl.create(:hostgroup, :with_os,
+                           environment: hostgroup_environment,
+                           domain: hostgroup_domain)
+      end
+
+      setup do
+        visit edit_discovered_host_path(discovered_host,
+                                        'host[hostgroup_id]' => hostgroup.id)
+        page.find("a[href='#os']").click
+        assert_selected '#host_hostgroup_id', hostgroup.id
+      end
+
+      it 'sets inherited attributes' do
+        %i[environment architecture operatingsystem].each do |attribute|
+          assert_selected "#host_#{attribute}_id", hostgroup.send(attribute).id
+        end
+
+        page.find('a[href="#network"]').click
+        page.find_button('Edit').click
+        assert_selected '#host_interfaces_attributes_0_domain_id',
+                        hostgroup.domain.id
+      end
+    end
+  end
+
   private
 
   def select_all_hosts

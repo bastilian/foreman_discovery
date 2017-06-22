@@ -145,3 +145,10 @@ def assert_param(expected, param)
   end
   assert_equal expected, result
 end
+
+def assert_selected(select_selector, value)
+  select = page.all(select_selector, visible: false).last
+  selected = select.find("option[selected='selected']", visible: false) rescue nil
+  assert_not_nil selected, "Nothing selected in #{select_selector}"
+  assert_equal value.to_s, selected.value
+end
