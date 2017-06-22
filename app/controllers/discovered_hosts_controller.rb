@@ -55,7 +55,7 @@ class DiscoveredHostsController < ::ApplicationController
 
   def edit
     @host = ::ForemanDiscovery::HostConverter.to_managed(@host, true, false, discovered_host_params_host) unless @host.nil?
-    setup_host_class_variables(@host)
+    setup_host_class_variables
     @override_taxonomy = true
     if params[:quick_submit]
       perform_update(@host, _('Successfully provisioned %s') % @host.name)
@@ -189,15 +189,18 @@ class DiscoveredHostsController < ::ApplicationController
 
   private
 
-  def setup_host_class_variables(host)
-    if host.hostgroup
-      @architecture    = host.hostgroup.architecture
-      @operatingsystem = host.hostgroup.operatingsystem
-      @environment     = host.hostgroup.environment
-      @domain          = host.hostgroup.domain
-      @subnet          = host.hostgroup.subnet
-      @compute_profile = host.hostgroup.compute_profile
-      @realm           = host.hostgroup.realm
+  def setup_host_class_variables
+    if @host.hostgroup
+      @architecture    = @host.hostgroup.architecture
+      @operatingsystem = @host.hostgroup.operatingsystem
+      @environment     = @host.hostgroup.environment
+      @domain          = @host.hostgroup.domain
+      @subnet          = @host.hostgroup.subnet
+      @compute_profile = @host.hostgroup.compute_profile
+      @realm           = @host.hostgroup.realm
+      @host.interfaces.first.assign_attributes(subnet: @subnet,
+                                               domain: @domain)
+      @host.environment = @environment
     end
   end
 
