@@ -2,7 +2,7 @@ require 'test_plugin_helper'
 require 'integration_test_helper'
 
 class DiscoveredHostsTest < IntegrationTestWithJavascript
-  let(:discovered_host) { FactoryGirl.create(:discovered_host, :with_facts) }
+  let(:discovered_host) { FactoryBot.create(:discovered_host, :with_facts) }
   let(:discovered_hosts) { Host::Discovered.all }
 
   setup do
@@ -100,10 +100,10 @@ class DiscoveredHostsTest < IntegrationTestWithJavascript
     end
 
     context 'with a hostgroup passed' do
-      let(:hostgroup_environment) { FactoryGirl.create(:environment) }
-      let(:hostgroup_domain) { FactoryGirl.create(:domain) }
+      let(:hostgroup_environment) { FactoryBot.create(:environment) }
+      let(:hostgroup_domain) { FactoryBot.create(:domain) }
       let(:hostgroup) do
-        FactoryGirl.create(:hostgroup, :with_os,
+        FactoryBot.create(:hostgroup, :with_os,
                            environment: hostgroup_environment,
                            domain: hostgroup_domain)
       end
