@@ -152,3 +152,8 @@ def assert_selected(select_selector, value)
   assert_not_nil selected, "Nothing selected in #{select_selector}"
   assert_equal value.to_s, selected.value
 end
+
+def discovered_notification_blueprint
+  @blueprint ||= FactoryBot.create(:notification_blueprint,
+                                   name: 'new_discovered_host')
+end
