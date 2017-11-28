@@ -6,6 +6,7 @@ class DiscoveredHostsTest < IntegrationTestWithJavascript
   let(:discovered_hosts) { Host::Discovered.all }
 
   setup do
+    assert discovered_notification_blueprint
     discovered_host.save!
     visit discovered_hosts_path
   end
